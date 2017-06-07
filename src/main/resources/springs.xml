@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
+       http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+  http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd"
+       default-init-method="myInit" default-destroy-method="cleanUp">
+
+    <!--Abstract will ensure this bean isnot created-->
+       <bean id="parentTriangle" class="org.common.beans.Triangle" abstract="true">
+           <property name="points">
+               <list>
+                   <ref bean="zeroPoint"/>
+                   <ref bean="twoPoint"/>
+                   <ref bean="twoPoint"/>
+
+               </list>
+           </property>
+           <property name="pointA" ref="zeroPoint">
+           </property>
+       </bean>
+
+       <bean id="Triangle" class="org.common.beans.Triangle" name="Triangle-Name" parent="parentTriangle"><!--autowire="byName"-->
+        <!--<property name="type" value="Equilateral"/> This is for setter injection-->
+        <constructor-arg index="0" type="java.lang.String" value="Equiateral"/>
+        <constructor-arg index="1" type="int" value="20"/>
+
+
+
+
+        <!--<property name="pointB">
+            <bean class="org.commonn.Point">
+                <property name="x" value="${pointB.pointX}"/>
+                <property name="y" value="${pointB.pointY}"/>
+            </bean>
+        </property>-->
+        <property name="pointC" ref="twoPoint"/>
+
+    </bean>
+
+    <bean id="onePoint" class="org.common.beans.Point">
+        <property name="x" value="${pointB.pointX}"/>
+        <property name="y" value="${pointB.pointY}"/>
+    </bean>
+
+    <bean id="zeroPoint" class="org.common.beans.Point">
+        <property name="x" value="-20"/>
+        <property name="y" value="0"/>
+    </bean>
+
+    <bean id="center" class="org.common.beans.Point">
+        <property name="x" value="-20"/>
+        <property name="y" value="0"/>
+    </bean>
+
+    <bean id="twoPoint" class="org.common.beans.Point" init-method="myInit" destroy-method="cleanUp">
+        <qualifier value="pointCRelated"/>
+        <property name="x" value="20"/>
+        <property name="y" value="0"/>
+    </bean>
+
+    <alias name="Triangle" alias="Triangle-Alias"/>
+   <!-- <alias name="center" alias="zeroPoint"/>-->
+
+
+    <bean class="org.DisplayNameBeanPostProcessor"></bean>
+    <bean class="org.BeanFactoryPP"></bean>
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations" value="spring.properties"/>
+    </bean>
+
+    <!--<bean id="circle" class="org.commonn.Circle" >
+        &lt;!&ndash;<property name="center" ref="zeroPoint"/>&ndash;&gt;
+    </bean>-->
+
+    <bean class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor"/>
+    <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
+    <!--The below postprocessor is for javax annotations-->
+    <bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/>
+    <context:component-scan base-package="org.common"></context:component-scan>
+
+   <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basenames">
+            <list>
+                <value>mymessages</value>
+            </list>
+        </property>
+    </bean>
+
+
+    <!--If this is mentioned then no need to specify annotation based post processor common-->
+<!--
+    <context:annotation-config/>
+-->
+</beans>
